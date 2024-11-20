@@ -293,14 +293,26 @@ func (service *FindPwdService) FindPwd(ctx context.Context) serializer.Response 
 		}
 	}
 
+	// rsa解析密码
+	decrypt, err := util.Decrypt(service.NewPwd, util.GetPrivateKey())
+	if err != nil {
+		code = e.ERROR
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data:   "rsa解析密码错误！",
+		}
+	}
+
 	// 更新密码
-	if err = user.SetPassword(service.NewPwd); err != nil {
+	if err = user.SetPassword(decrypt); err != nil {
 		code = e.ErrorFailEncryption
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
 		}
 	}
+
 	err = userDao.UpdateUserByID(user, uint(user.UserId))
 	if err != nil {
 		code = e.ERROR
