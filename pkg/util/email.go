@@ -17,6 +17,7 @@ func SendEmail(receive, data, subject string) error {
 	d := mail.NewDialer(config.Config.Email.SmtpHost, 465, config.Config.Email.SmtpEmail, config.Config.Email.SmtpPass)
 	d.StartTLSPolicy = mail.MandatoryStartTLS
 	if err := d.DialAndSend(m); err != nil {
+		println("AAdasdasdasd")
 		println(err)
 		return err
 	}
