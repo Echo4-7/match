@@ -3,6 +3,7 @@ package util
 import (
 	"Fire/config"
 	"gopkg.in/mail.v2"
+	"log"
 )
 
 type EmailSender struct {
@@ -18,7 +19,7 @@ func SendEmail(receive, data, subject string) error {
 	d.StartTLSPolicy = mail.MandatoryStartTLS
 	if err := d.DialAndSend(m); err != nil {
 		println("AAdasdasdasd")
-		println(err)
+		log.Fatalf("%v\n", err)
 		return err
 	}
 	return nil
