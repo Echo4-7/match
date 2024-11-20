@@ -50,7 +50,7 @@ func Decrypt(ciphertext string, priv *rsa.PrivateKey) (string, error) {
 
 func GetPrivateKey() *rsa.PrivateKey {
 	// 从文件中读取PEM数据
-	pemBytes, err := os.ReadFile("/home/jhq/GolandProjects/Fire/private.pem")
+	pemBytes, err := os.ReadFile("private.pem")
 	if err != nil {
 		log.Fatalf("Error reading private key file: %v", err)
 	}
