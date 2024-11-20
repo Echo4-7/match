@@ -229,6 +229,7 @@ func (service *UserService) SendCheckCode(email string, status string) serialize
 	// 做缓存
 	if err := cache.RedisClient.Set("CHECK_CODE_MAIL:"+email, checkCode, 5*time.Minute).Err(); err != nil {
 		code = e.ERROR
+		println(err)
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
