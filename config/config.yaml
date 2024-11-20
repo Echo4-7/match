@@ -4,7 +4,8 @@ system:
   env: "dev"
   HttpPort: ":5000"
   #Host: "127.0.0.1"
-  Host: "192.168.31.232"
+  #Host: "192.168.31.232"
+  Host: "112.124.46.88"
   UploadModel: "local"
   StartTime: "2024-10-20"
   MachineID: 1
@@ -12,22 +13,25 @@ system:
 
 mysql:
     dialect: "mysql"
-    dbHost: "127.0.0.1"
+    dbHost: "112.124.46.88"
     dbPort: "3306"
-    dbName: "fire_tmp"
+    dbName: "fire"
+    #dbHost: "127.0.0.1"
+    #dbPort: "3306"
+    #dbName: "fire_tmp"
     userName: "root"
     password: "abc123"
     charset: "utf8mb4"
 
 redis:
   redisDbName: 4
-  redisHost: 127.0.0.1
+  redisHost: 112.124.46.88
   redisPort: 6379
   redisPassword: abc123
   redisNetwork: "tcp"
 
 email:
-  ValidEmail: http://127.0.0.1:5000/
+  ValidEmail: http://112.124.46.88:5000/
   SmtpHost: "smtp.qq.com"
   SmtpEmail: "2098128799@qq.com"
   SmtpPass: "eufkdzjfgigvbahd"
@@ -38,5 +42,5 @@ encryptSecret:
   phoneSecret: "PhoneSecret"
 
 path:
-  photoHost: "http://8.136.113.100"
+  photoHost: "http://112.124.46.88"
   avatarPath: "/static/imgs/avatar/"
