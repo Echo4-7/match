@@ -225,6 +225,16 @@ func (service *UserService) SendCheckCode(email string, status string) serialize
 	}
 
 	checkCode := fmt.Sprintf("%06d", rand.Intn(1000000)) // 生成 6 位数验证码
+
+	// 做缓存
+	if err := cache.RedisClient.Set("CHECK_CODE_MAIL:"+email, checkCode, 5*time.Minute).Err(); err != nil {
+		code = e.ERROR
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data:   "存储验证码失败",
+		}
+	}
 	// 发送邮件
 	err := util.SendEmail(email, checkCode, subject)
 	if err != nil {
@@ -232,15 +242,6 @@ func (service *UserService) SendCheckCode(email string, status string) serialize
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-		}
-	}
-	// 做缓存
-	if err = cache.RedisClient.Set("CHECK_CODE_MAIL:"+email, checkCode, 5*time.Minute).Err(); err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "存储验证码失败",
 		}
 	}
 	return serializer.Response{
