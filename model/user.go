@@ -3,7 +3,7 @@ package model
 import "golang.org/x/crypto/bcrypt"
 
 type User struct {
-	UserId         int64
+	UserId         int32
 	NickName       string
 	Gender         string
 	TelNum         string

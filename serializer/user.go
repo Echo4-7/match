@@ -7,7 +7,7 @@ import (
 
 // User 返回给前端的结构体
 type User struct {
-	UserID      int64  `json:"userId"`
+	UserID      int32  `json:"userId"`
 	Email       string `json:"email"`
 	NickName    string `json:"nick_name"`
 	Gender      string `json:"gender"`

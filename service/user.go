@@ -55,7 +55,7 @@ func (service *UserService) Register(ctx context.Context) serializer.Response {
 	uid := snowflake.GenID()
 	// 激活用户
 	user = &model.User{
-		UserId: uid,
+		UserId: int32(uid),
 		Email:  service.Email,
 		Avatar: "avatar.jpg",
 		Status: model.Active,
