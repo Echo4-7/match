@@ -37,11 +37,12 @@ func (dao *UserDao) CreateUser(user *model.User) error {
 
 // GetUserByID 根据ID获取用户
 func (dao *UserDao) GetUserByID(uid uint) (user *model.User, err error) {
-	err = dao.DB.Model(&model.User{}).Where("id = ?", uid).First(&user).Error
+	err = dao.DB.Model(&model.User{}).Where("user_id = ?", uid).First(&user).Error
 	return
 }
 
 // UpdateUserByID 根据ID更新用户信息
 func (dao *UserDao) UpdateUserByID(user *model.User, uid uint) error {
-	return dao.DB.Model(&model.User{}).Where("id = ?", uid).Updates(&user).Error
+	err := dao.DB.Model(&model.User{}).Where("user_id = ?", uid).Updates(&user).Error
+	return err
 }
