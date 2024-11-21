@@ -27,9 +27,8 @@ type UserService struct {
 }
 
 type FindPwdService struct {
-	Email     string `json:"email" form:"email"`
-	NewPwd    string `json:"new_pwd" form:"new_pwd"`
-	CheckCode string `json:"check_code" form:"check_code"`
+	Email  string `json:"email" form:"email"`
+	NewPwd string `json:"new_pwd" form:"new_pwd"`
 }
 
 // Register 注册
@@ -273,7 +272,7 @@ func (service *UserService) Check(email string, checkCode string) serializer.Res
 func (service *FindPwdService) FindPwd(ctx context.Context) serializer.Response {
 	var user *model.User
 	code := e.SUCCESS
-	if service.Email == "" || service.NewPwd == "" || service.CheckCode == "" {
+	if service.Email == "" || service.NewPwd == "" {
 		code = e.InvalidParams
 		return serializer.Response{
 			Status: code,
