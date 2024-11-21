@@ -3,7 +3,8 @@ package model
 import "golang.org/x/crypto/bcrypt"
 
 type User struct {
-	UserId         int32
+	ID             int `gorm:"primaryKey;autoIncrement"`
+	UserId         string
 	NickName       string
 	Gender         string
 	TelNum         string

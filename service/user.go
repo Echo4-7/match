@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"math/rand"
 	"mime/multipart"
-	"strconv"
 	"time"
 )
 
@@ -52,10 +51,10 @@ func (service *UserService) Register(ctx context.Context) serializer.Response {
 			Msg:    e.GetMsg(code),
 		}
 	}
-	uid := snowflake.GenID()
+	userId := snowflake.GenID()
 	// 激活用户
 	user = &model.User{
-		UserId: int32(uid),
+		UserId: userId,
 		Email:  service.Email,
 		Avatar: "avatar.jpg",
 		Status: model.Active,
@@ -113,7 +112,9 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-			Data:   "用户不存在，请先注册！",
+			Data: serializer.TokenData{
+				User: user,
+			},
 		}
 	}
 
@@ -124,7 +125,6 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-			Data:   "rsa解析密码错误！",
 		}
 	}
 
@@ -134,11 +134,13 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
-			Data:   "密码错误，请重新输入！",
+			Data: serializer.TokenData{
+				User: user,
+			},
 		}
 	}
 	// http 无状态（认证，带上token)
-	token, err := util.GenerateToken(uint(user.UserId), user.Status)
+	token, err := util.GenerateToken(user.UserId, user.Status)
 	if err != nil {
 		code = e.ErrorAuthToken
 		return serializer.Response{
@@ -157,15 +159,15 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 }
 
 // Update 更新用户信息
-func (service *UserService) Update(ctx context.Context, uid uint) serializer.Response {
+func (service *UserService) Update(ctx context.Context, userId string) serializer.Response {
 	var user *model.User
 	// 找到用户
 	userDao := dao.NewUserDao(ctx)
 	code := e.SUCCESS
 
-	user, err := userDao.GetUserByID(uid)
+	user, err := userDao.GetUserByID(userId)
 
-	err = userDao.UpdateUserByID(user, uid)
+	err = userDao.UpdateUserByID(user, userId)
 	if err != nil {
 		code = e.ERROR
 		return serializer.Response{
@@ -181,11 +183,12 @@ func (service *UserService) Update(ctx context.Context, uid uint) serializer.Res
 }
 
 // Post 头像更新
-func (service *UserService) Post(ctx context.Context, uid uint, file multipart.File) serializer.Response {
+func (service *UserService) Post(ctx context.Context, userId string, file multipart.File) serializer.Response {
 	code := e.SUCCESS
 	var user *model.User
 	userDao := dao.NewUserDao(ctx)
-	user, err := userDao.GetUserByID(uid)
+
+	user, err := userDao.GetUserByID(userId)
 	if err != nil {
 		code = e.ERROR
 		return serializer.Response{
@@ -193,9 +196,9 @@ func (service *UserService) Post(ctx context.Context, uid uint, file multipart.F
 			Msg:    e.GetMsg(code),
 		}
 	}
+
 	// 保存图片到本地
-	userID := strconv.Itoa(int(user.UserId))
-	path, err := UploadAvatarToLocalStatic(file, uid, userID)
+	path, err := UploadAvatarToLocalStatic(file, user.ID, userId)
 	if err != nil {
 		code = e.ErrorUploadFile
 		return serializer.Response{
@@ -204,7 +207,7 @@ func (service *UserService) Post(ctx context.Context, uid uint, file multipart.F
 		}
 	}
 	user.Avatar = path
-	err = userDao.UpdateUserByID(user, uid)
+	err = userDao.UpdateUserByID(user, userId)
 	if err != nil {
 		code = e.ERROR
 		return serializer.Response{
@@ -279,7 +282,7 @@ func (service *UserService) Check(email string, checkCode string) serializer.Res
 func (service *FindPwdService) FindPwd(ctx context.Context) serializer.Response {
 	var user *model.User
 	code := e.SUCCESS
-	if service.Email == "" || service.NewPwd == "" {
+	if service.Email == "" || service.NewPwd == "" { //TODO： 新密码不能和原密码一致
 		code = e.InvalidParams
 		return serializer.Response{
 			Status: code,
@@ -319,7 +322,7 @@ func (service *FindPwdService) FindPwd(ctx context.Context) serializer.Response 
 		}
 	}
 
-	err = userDao.UpdateUserByID(user, uint(user.UserId))
+	err = userDao.UpdateUserByID(user, user.UserId)
 	if err != nil {
 		code = e.ERROR
 		return serializer.Response{

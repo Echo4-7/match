@@ -8,7 +8,7 @@ import (
 var jwtSecret = []byte("shimily")
 
 type Claims struct {
-	ID       uint   `json:"id"`
+	UserID   string `json:"userId"`
 	UserName string `json:"user_name"`
 	//Authority int    `json:"authority"`
 	Status string `json:"status"`
@@ -16,17 +16,17 @@ type Claims struct {
 }
 
 // GenerateToken 签发token
-func GenerateToken(userID uint, status string) (string, error) {
+func GenerateToken(userID string, status string) (string, error) {
 	nowTime := time.Now()
 	expireTime := nowTime.Add(24 * time.Hour)
 	claims := Claims{
-		ID: userID,
+		UserID: userID,
 		//UserName:  userName,
 		//Authority: authority,
 		Status: status,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
-			Issuer:    "Take_Out",
+			Issuer:    "Fire",
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -34,7 +34,7 @@ func UserUpdate(c *gin.Context) {
 	var userUpdate service.UserService
 	claims, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&userUpdate); err == nil {
-		res := userUpdate.Update(c.Request.Context(), claims.ID)
+		res := userUpdate.Update(c.Request.Context(), claims.UserID)
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusBadRequest, err)
@@ -47,7 +47,7 @@ func UploadAvatar(c *gin.Context) {
 	var uploadAvatar service.UserService
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&uploadAvatar); err == nil {
-		res := uploadAvatar.Post(c.Request.Context(), claim.ID, file)
+		res := uploadAvatar.Post(c.Request.Context(), claim.UserID, file)
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusBadRequest, err)
