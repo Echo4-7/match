@@ -101,7 +101,14 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 
 	// 判断用户是否存在
 	user, exist, err := userDao.ExistOrNotExist(service.Email)
-	if err != nil || !exist {
+	if err != nil {
+		code = e.ErrorDatabase
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+		}
+	}
+	if !exist {
 		code = e.ErrorNotExistUser
 		return serializer.Response{
 			Status: code,
