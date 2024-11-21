@@ -4,10 +4,14 @@ import "golang.org/x/crypto/bcrypt"
 
 type User struct {
 	UserId         int64
-	Email          string
 	NickName       string
+	Gender         string
+	TelNum         string
+	Email          string
 	PasswordDigest string
+	Location       string
 	Avatar         string
+	Description    string
 	Status         string
 }
 
