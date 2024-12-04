@@ -9,7 +9,6 @@ type Response struct {
 	Status int         `json:"code"`
 	Data   interface{} `json:"data"`
 	Msg    string      `json:"msg"`
-	//Error  string      `json:"error"`
 }
 
 type TokenData struct {
@@ -19,10 +18,10 @@ type TokenData struct {
 
 type DataList struct {
 	Item  interface{} `json:"item"`
-	Total uint        `json:"total"`
+	Total int         `json:"total"`
 }
 
-func BuildListResponse(items interface{}, total uint) Response {
+func BuildListResponse(items interface{}, total int) Response {
 	return Response{
 		Status: http.StatusOK,
 		Data: DataList{
@@ -30,5 +29,14 @@ func BuildListResponse(items interface{}, total uint) Response {
 			Total: total,
 		},
 		Msg: e.GetMsg(http.StatusOK),
+	}
+}
+
+// HandleError 通用错误处理方法
+func HandleError(code int) Response {
+	return Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data:   nil,
 	}
 }

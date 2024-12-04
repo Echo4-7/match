@@ -22,8 +22,19 @@ func UserRegister(c *gin.Context) {
 func UserLogin(c *gin.Context) {
 	var userLogin service.UserService
 	if err := c.ShouldBind(&userLogin); err == nil {
-		res := userLogin.Login(c.Request.Context())
-		c.JSON(http.StatusOK, res)
+		if IsEmail(userLogin.Account) {
+			res := userLogin.LoginWithEmail(c.Request.Context())
+			c.JSON(http.StatusOK, res)
+			return
+		} else if IsTelNum(userLogin.Account) {
+			res := userLogin.LoginWithTelNum(c.Request.Context())
+			c.JSON(http.StatusOK, res)
+			return
+		} else if IsUserId(userLogin.Account) {
+			res := userLogin.LoginWithUserId(c.Request.Context())
+			c.JSON(http.StatusOK, res)
+			return
+		}
 	} else {
 		c.JSON(http.StatusBadRequest, err)
 	}
@@ -31,7 +42,7 @@ func UserLogin(c *gin.Context) {
 
 // UserUpdate 用户更新接口
 func UserUpdate(c *gin.Context) {
-	var userUpdate service.UserService
+	var userUpdate service.UserInfoService
 	claims, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&userUpdate); err == nil {
 		res := userUpdate.Update(c.Request.Context(), claims.UserID)
@@ -47,7 +58,7 @@ func UploadAvatar(c *gin.Context) {
 	var uploadAvatar service.UserService
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&uploadAvatar); err == nil {
-		res := uploadAvatar.Post(c.Request.Context(), claim.UserID, file)
+		res := uploadAvatar.UploadAvatar(c.Request.Context(), claim.UserID, file)
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusBadRequest, err)

@@ -8,18 +8,23 @@ const (
 	NotExistInentifier    = 202
 	ERROR                 = 500
 	InvalidParams         = 400
+	ServerBusy            = 503
 
 	//成员错误
-	ErrorExistNick          = 10001
-	ErrorExistUser          = 10002
-	ErrorNotExistUser       = 10003
-	ErrorNotCompare         = 10004
-	ErrorNotComparePassword = 10005
-	ErrorFailEncryption     = 10006
-	ErrorNotExistProduct    = 10007
-	ErrorNotExistAddress    = 10008
-	ErrorExistFavorite      = 10009
-	ErrorUserNotFound       = 10010
+	ErrorExistNick = 9996 + iota
+	ErrorExistEmail
+	ErrorExistTelNum
+	ErrorExistUser
+	ErrorNotExistUser
+	ErrorNotCompare
+	ErrorCheckCode
+	ErrorNotComparePassword
+	ErrorFailEncryption
+	ErrorNotExistProduct
+	ErrorNotExistAddress
+	ErrorExistFavorite
+	ErrorUserNotFound
+	ErrorComparePassword
 
 	//店家错误
 	ErrorBossCheckTokenFail        = 20001

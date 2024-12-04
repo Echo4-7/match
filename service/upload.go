@@ -9,7 +9,7 @@ import (
 )
 
 // UploadAvatarToLocalStatic 更新头像到本地
-func UploadAvatarToLocalStatic(file multipart.File, id int, userId string) (filePath string, err error) {
+func UploadAvatarToLocalStatic(file multipart.File, id int, userId string) (filePath string, err error) { // TODO: 后期可以考虑 minio 优化
 	bId := strconv.Itoa(id) // 路径拼接
 	basePath := "." + config.Config.Path.AvatarPath + "user" + bId + "/"
 	if !DirExistOrNot(basePath) {

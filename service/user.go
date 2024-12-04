@@ -7,6 +7,7 @@ import (
 	"Fire/pkg/e"
 	"Fire/pkg/snowflake"
 	"Fire/pkg/util"
+	"Fire/pkg/util/log"
 	"Fire/serializer"
 	"context"
 	"fmt"
@@ -21,41 +22,42 @@ const (
 )
 
 type UserService struct {
-	Email    string `json:"email" form:"email"`
 	Password string `json:"password" form:"password"`
+	Account  string `json:"account" form:"account"`
 }
 
 type FindPwdService struct {
-	Email  string `json:"email" form:"email"`
-	NewPwd string `json:"new_pwd" form:"new_pwd"`
+	Account string `json:"account" form:"account"`
+	NewPwd  string `json:"new_pwd" form:"new_pwd"`
+}
+
+type UserInfoService struct {
+	NickName    string `json:"nick_name" form:"nick_name"`
+	Gender      string `json:"gender" form:"gender"`
+	TelNum      string `json:"tel_num" form:"tel_num"`
+	Email       string `json:"email" form:"email"`
+	Location    string `json:"location" form:"location"`
+	Description string `json:"description" form:"description"`
 }
 
 // Register 注册
 func (service *UserService) Register(ctx context.Context) serializer.Response {
 	var user *model.User
-	code := e.SUCCESS
 
 	userDao := dao.NewUserDao(ctx)
-	_, exist, err := userDao.ExistOrNotExist(service.Email)
+	_, exist, err := userDao.IsExistByEmail(service.Account)
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("IsExistByEmail failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 	if exist {
-		code = e.ErrorExistUser
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		return serializer.HandleError(e.ErrorExistUser)
 	}
 	userId := snowflake.GenID()
 	// 激活用户
 	user = &model.User{
 		UserId: userId,
-		Email:  service.Email,
+		Email:  service.Account,
 		Avatar: "avatar.jpg",
 		Status: model.Active,
 	}
@@ -63,49 +65,37 @@ func (service *UserService) Register(ctx context.Context) serializer.Response {
 	// rsa解密
 	decrypt, err := util.Decrypt(service.Password, util.GetPrivateKey())
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "rsa解析密码错误！",
-		}
+		log.LogrusObj.Infoln("Decrypt failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 
 	// 密码加密
 	if err = user.SetPassword(decrypt); err != nil {
-		code = e.ErrorFailEncryption
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("SetPassword failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 
 	// 创建用户
 	err = userDao.CreateUser(user)
 	if err != nil {
-		code = e.ERROR
+		log.LogrusObj.Infoln("CreateUser failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return serializer.HandleError(e.SUCCESS)
 }
 
-// Login 登陆
-func (service *UserService) Login(ctx context.Context) serializer.Response {
+// LoginWithEmail 使用email登陆
+func (service *UserService) LoginWithEmail(ctx context.Context) serializer.Response {
 	var user *model.User
 	code := e.SUCCESS
 
 	userDao := dao.NewUserDao(ctx)
 
 	// 判断用户是否存在
-	user, exist, err := userDao.ExistOrNotExist(service.Email)
+	user, exist, err := userDao.IsExistByEmail(service.Account)
 	if err != nil {
-		code = e.ErrorDatabase
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("IsExistByEmail failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 	if !exist {
 		code = e.ErrorNotExistUser
@@ -121,11 +111,8 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 	// rsa解析密码
 	decrypt, err := util.Decrypt(service.Password, util.GetPrivateKey())
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("Decrypt failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 
 	// 校验密码
@@ -142,11 +129,8 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 	// http 无状态（认证，带上token)
 	token, err := util.GenerateToken(user.UserId, user.Status)
 	if err != nil {
-		code = e.ErrorAuthToken
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("GenerateToken failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 	return serializer.Response{
 		Status: code,
@@ -158,22 +142,191 @@ func (service *UserService) Login(ctx context.Context) serializer.Response {
 	}
 }
 
-// Update 更新用户信息
-func (service *UserService) Update(ctx context.Context, userId string) serializer.Response {
-	var user *model.User
-	// 找到用户
-	userDao := dao.NewUserDao(ctx)
+// LoginWithTelNum 使用telNum登陆
+func (service *UserService) LoginWithTelNum(ctx context.Context) serializer.Response {
 	code := e.SUCCESS
+	var user *model.User
 
-	user, err := userDao.GetUserByID(userId)
+	UserDao := dao.NewUserDao(ctx)
 
-	err = userDao.UpdateUserByID(user, userId)
+	user, exist, err := UserDao.IsExistByTelNum(service.Account)
 	if err != nil {
-		code = e.ERROR
+		log.LogrusObj.Infoln("IsExistByTelNum failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if !exist {
+		code = e.ErrorNotExistUser
 		return serializer.Response{
 			Status: code,
 			Msg:    e.GetMsg(code),
+			Data: serializer.TokenData{
+				User: user,
+			},
 		}
+	}
+	// rsa解析密码
+	decrypt, err := util.Decrypt(service.Password, util.GetPrivateKey())
+	if err != nil {
+		log.LogrusObj.Infoln("Decrypt failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+
+	// 校验密码
+	if user.CheckPassword(decrypt) == false {
+		code = e.ErrorNotCompare
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data: serializer.TokenData{
+				User: user,
+			},
+		}
+	}
+	// http 无状态（认证，带上token)
+	token, err := util.GenerateToken(user.UserId, user.Status)
+	if err != nil {
+		log.LogrusObj.Infoln("GenerateToken failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data: serializer.TokenData{
+			User:  serializer.BuildUser(user),
+			Token: token,
+		},
+	}
+}
+
+// LoginWithUserId 使用userId登陆
+func (service *UserService) LoginWithUserId(ctx context.Context) serializer.Response {
+	code := e.SUCCESS
+	var user *model.User
+
+	UserDao := dao.NewUserDao(ctx)
+
+	user, exist, err := UserDao.IsExistByUserId(service.Account)
+	if err != nil {
+		log.LogrusObj.Infoln("IsExistByUserId failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if !exist {
+		code = e.ErrorNotExistUser
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data: serializer.TokenData{
+				User: user,
+			},
+		}
+	}
+	// rsa解析密码
+	decrypt, err := util.Decrypt(service.Password, util.GetPrivateKey())
+	if err != nil {
+		log.LogrusObj.Infoln("Decrypt failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+
+	// 校验密码
+	if user.CheckPassword(decrypt) == false {
+		code = e.ErrorNotCompare
+		return serializer.Response{
+			Status: code,
+			Msg:    e.GetMsg(code),
+			Data: serializer.TokenData{
+				User: user,
+			},
+		}
+	}
+	// http 无状态（认证，带上token)
+	token, err := util.GenerateToken(user.UserId, user.Status)
+	if err != nil {
+		log.LogrusObj.Infoln("GenerateToken failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	return serializer.Response{
+		Status: code,
+		Msg:    e.GetMsg(code),
+		Data: serializer.TokenData{
+			User:  serializer.BuildUser(user),
+			Token: token,
+		},
+	}
+}
+
+// Update 更新用户信息 //
+func (service *UserInfoService) Update(ctx context.Context, userId string) serializer.Response {
+	var user *model.User
+	code := e.SUCCESS
+	// 找到用户
+	userDao := dao.NewUserDao(ctx)
+
+	user, err := userDao.GetUserByID(userId)
+	if err != nil {
+		log.LogrusObj.Infoln("GetUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if user == nil {
+		return serializer.HandleError(e.ErrorNotExistUser)
+	}
+
+	// 昵称更新
+	if service.NickName != "" {
+		// 检查昵称是否被使用
+		exist, err := userDao.NickNameIsExist(service.NickName)
+		if err != nil {
+			log.LogrusObj.Infoln("NickNameIsExist failed:", err)
+			return serializer.HandleError(e.ServerBusy)
+		}
+		if exist {
+			return serializer.HandleError(e.ErrorExistNick)
+		}
+		user.NickName = service.NickName
+	}
+
+	// 邮箱更新
+	if service.Email != "" {
+		// 检查邮箱是否被注册
+		exist, err := userDao.EmailIsExist(service.Email)
+		if err != nil {
+			log.LogrusObj.Infoln("EmailIsExist failed:", err)
+			return serializer.HandleError(e.ServerBusy)
+		}
+		if exist {
+			return serializer.HandleError(e.ErrorExistEmail)
+		}
+		user.Email = service.Email
+	}
+	// 手机号更新
+	if service.TelNum != "" {
+		// 检查手机号是否被注册
+		exist, err := userDao.TelNumIsExist(service.TelNum)
+		if err != nil {
+			log.LogrusObj.Infoln("TelNumIsExist failed:", err)
+			return serializer.HandleError(e.ServerBusy)
+		}
+		if exist {
+			return serializer.HandleError(e.ErrorExistTelNum)
+		}
+		user.TelNum = service.TelNum
+	}
+	// 性别更新
+	if service.Gender != "" {
+		user.Gender = service.Gender
+	}
+	// 个性签名更新
+	if service.Description != "" {
+		user.Description = service.Description
+	}
+	// 位置更新
+	if service.Location != "" {
+		user.Location = service.Location
+	}
+
+	err = userDao.UpdateUserByID(user, userId)
+	if err != nil {
+		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 	return serializer.Response{
 		Status: code,
@@ -182,49 +335,33 @@ func (service *UserService) Update(ctx context.Context, userId string) serialize
 	}
 }
 
-// Post 头像更新
-func (service *UserService) Post(ctx context.Context, userId string, file multipart.File) serializer.Response {
-	code := e.SUCCESS
+// UploadAvatar 头像更新
+func (service *UserService) UploadAvatar(ctx context.Context, userId string, file multipart.File) serializer.Response {
 	var user *model.User
 	userDao := dao.NewUserDao(ctx)
 
 	user, err := userDao.GetUserByID(userId)
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("GetUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 
 	// 保存图片到本地
 	path, err := UploadAvatarToLocalStatic(file, user.ID, userId)
 	if err != nil {
-		code = e.ErrorUploadFile
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		return serializer.HandleError(e.ErrorUploadFile)
 	}
 	user.Avatar = path
 	err = userDao.UpdateUserByID(user, userId)
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildUser(user),
-	}
+	return serializer.HandleError(e.SUCCESS)
 }
 
 // SendCheckCode 发送验证码
 func (service *UserService) SendCheckCode(email string, status string) serializer.Response {
-	code := e.SUCCESS
 	var subject string
 
 	if status == Register {
@@ -237,101 +374,62 @@ func (service *UserService) SendCheckCode(email string, status string) serialize
 
 	// 做缓存
 	if err := cache.RedisClient.Set("CHECK_CODE_MAIL:"+email, checkCode, 5*time.Minute).Err(); err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "存储验证码失败",
-		}
+		log.LogrusObj.Infoln("RedisClient.Set failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
 	// 发送邮件
 	err := util.SendEmail(email, checkCode, subject)
 	if err != nil {
-		code = e.ErrorSendEmail
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		return serializer.HandleError(e.ErrorSendEmail)
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return serializer.HandleError(e.SUCCESS)
 }
 
 // Check 检查验证码
 func (service *UserService) Check(email string, checkCode string) serializer.Response {
-	code := e.SUCCESS
 	// 检查验证码
 	check, _ := cache.RedisClient.Get("CHECK_CODE_MAIL:" + email).Result()
 	if check != checkCode {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "验证码错误",
-		}
+		return serializer.HandleError(e.ErrorCheckCode)
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return serializer.HandleError(e.SUCCESS)
 }
 
 // FindPwd 找回密码
 func (service *FindPwdService) FindPwd(ctx context.Context) serializer.Response {
 	var user *model.User
-	code := e.SUCCESS
-	if service.Email == "" || service.NewPwd == "" { //TODO： 新密码不能和原密码一致
-		code = e.InvalidParams
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+	if service.Account == "" || service.NewPwd == "" {
+		return serializer.HandleError(e.InvalidParams)
 	}
 
 	// 查询用户是否存在
 	userDao := dao.NewUserDao(ctx)
-	user, exist, err := userDao.ExistOrNotExist(service.Email)
+	user, exist, err := userDao.IsExistByEmail(service.Account)
 	if err != nil || !exist {
-		code = e.ErrorNotExistUser
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "用户不存在",
-		}
+		return serializer.HandleError(e.ErrorNotExistUser)
 	}
 
 	// rsa解析密码
 	decrypt, err := util.Decrypt(service.NewPwd, util.GetPrivateKey())
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-			Data:   "rsa解析密码错误！",
-		}
+		log.LogrusObj.Infoln("Decrypt failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+
+	// 新密码不能和原密码一致
+	if user.CheckPassword(decrypt) == true {
+		return serializer.HandleError(e.ErrorComparePassword)
 	}
 
 	// 更新密码
 	if err = user.SetPassword(decrypt); err != nil {
-		code = e.ErrorFailEncryption
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("SetPassword failed:", err)
+		return serializer.HandleError(e.ErrorFailEncryption)
 	}
-
 	err = userDao.UpdateUserByID(user, user.UserId)
 	if err != nil {
-		code = e.ERROR
-		return serializer.Response{
-			Status: code,
-			Msg:    e.GetMsg(code),
-		}
+		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return serializer.HandleError(e.SUCCESS)
 }

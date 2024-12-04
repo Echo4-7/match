@@ -4,6 +4,7 @@ import (
 	"Fire/cache"
 	"Fire/config"
 	"Fire/pkg/snowflake"
+	log2 "Fire/pkg/util/log"
 	"Fire/router"
 	"context"
 	"fmt"
@@ -29,6 +30,7 @@ func main() {
 		return
 	}
 	cache.InitRedis()
+	log2.InitLog()
 
 	r := router.NewRouter()
 	_ = r.Run(config.Config.System.HttpPort)

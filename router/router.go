@@ -31,13 +31,13 @@ func NewRouter() *gin.Engine {
 		v1.PUT("user/findPwd", api.FindPwd)
 
 		// 轮播图
-		//v1.GET("carousels", api.ListCarousel)
+		v1.GET("carousels", api.ListCarousel)
 
 		auth := v1.Group("/") // 需要登陆保护  api/v1
 		auth.Use(middleware.JWT())
 		{
 			// 更新操作
-			auth.PUT("user", api.UserUpdate)
+			auth.PUT("user/update", api.UserUpdate)
 			// 上传头像
 			auth.POST("avatar", api.UploadAvatar)
 		}
