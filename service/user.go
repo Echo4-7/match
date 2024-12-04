@@ -295,6 +295,7 @@ func (service *UserInfoService) Update(ctx context.Context, userId string) seria
 		if exist {
 			return serializer.HandleError(e.ErrorExistEmail)
 		}
+
 		user.Email = service.Email
 	}
 	// 手机号更新
@@ -331,7 +332,6 @@ func (service *UserInfoService) Update(ctx context.Context, userId string) seria
 	return serializer.Response{
 		Status: code,
 		Msg:    e.GetMsg(code),
-		Data:   serializer.BuildUser(user),
 	}
 }
 
