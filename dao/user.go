@@ -86,7 +86,7 @@ func (dao *UserDao) NickNameIsExist(nickname string) (exist bool, err error) {
 
 }
 
-// EmailIsExist 检查用户名是否存在
+// EmailIsExist 检查邮箱是否存在
 func (dao *UserDao) EmailIsExist(email string) (exist bool, err error) {
 	var user *model.User
 	if err = dao.DB.Model(&model.User{}).Where("email = ?", email).First(&user).Error; err != nil {
@@ -99,7 +99,7 @@ func (dao *UserDao) EmailIsExist(email string) (exist bool, err error) {
 
 }
 
-// TelNumIsExist 检查用户名是否存在
+// TelNumIsExist 检查电话号码是否存在
 func (dao *UserDao) TelNumIsExist(telNum string) (exist bool, err error) {
 	var user *model.User
 	if err = dao.DB.Model(&model.User{}).Where("tel_num = ?", telNum).First(&user).Error; err != nil {
