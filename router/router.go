@@ -40,6 +40,8 @@ func NewRouter() *gin.Engine {
 			auth.PUT("user/update", api.UserUpdate)
 			// 上传头像
 			auth.POST("avatar", api.UploadAvatar)
+			// 获取用户详细信息
+			auth.GET("user/info", api.UserInfo)
 		}
 	}
 

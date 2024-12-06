@@ -2,6 +2,7 @@ package v1
 
 import (
 	"Fire/pkg/util"
+	"Fire/pkg/util/log"
 	"Fire/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -54,11 +55,15 @@ func UserUpdate(c *gin.Context) {
 
 // UploadAvatar 上传头像
 func UploadAvatar(c *gin.Context) {
-	file, _, _ := c.Request.FormFile("file")
 	var uploadAvatar service.UserService
+	_, header, err := c.Request.FormFile("file")
+	if err != nil {
+		log.LogrusObj.Infoln("Failed to retrieve file: ", err)
+		return
+	}
 	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
 	if err := c.ShouldBind(&uploadAvatar); err == nil {
-		res := uploadAvatar.UploadAvatar(c.Request.Context(), claim.UserID, file)
+		res := uploadAvatar.UploadAvatar(c.Request.Context(), claim.UserID, header)
 		c.JSON(http.StatusOK, res)
 	} else {
 		c.JSON(http.StatusBadRequest, err)
@@ -100,4 +105,18 @@ func FindPwd(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusBadRequest, err)
 	}
+}
+
+// UserInfo 获取用户信息
+func UserInfo(c *gin.Context) {
+	var userService service.UserService
+	claim, err := util.ParseToken(c.GetHeader("Authorization"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	} else {
+		res := userService.Info(c.Request.Context(), claim.UserID)
+		c.JSON(http.StatusOK, res)
+	}
+
 }

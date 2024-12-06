@@ -44,3 +44,9 @@ encryptSecret:
 path:
   photoHost: "http://112.124.46.88"
   avatarPath: "/static/imgs/avatar/"
+
+minio:
+  endpoint: 118.31.244.33:9000
+  accessKey: "jhqminio"
+  secretKey: "shimily123"
+  bucketName: "avatar"

@@ -4,6 +4,7 @@ import (
 	"Fire/cache"
 	"Fire/config"
 	"Fire/pkg/snowflake"
+	"Fire/pkg/util"
 	log2 "Fire/pkg/util/log"
 	"Fire/router"
 	"context"
@@ -24,13 +25,19 @@ func main() {
 		fmt.Printf("config.Init failed, err: %v\n", err)
 		return
 	}
-
 	if err := snowflake.Init(config.Config.System.StartTime, config.Config.System.MachineID); err != nil {
 		fmt.Printf("init snowflake failed, err: %v\n", err)
 		return
 	}
 	cache.InitRedis()
 	log2.InitLog()
+	//err := util.InitMinio(config.Config.Minio.Endpoint, config.Config.Minio.AccessKey, config.Config.Minio.SecretKey)
+	//if err != nil {
+	//	fmt.Printf("init minio failed, err: %v\n", err)
+	//	return
+	//}
+
+	util.InitMinio(config.Config.Minio.Endpoint, config.Config.Minio.AccessKey, config.Config.Minio.SecretKey)
 
 	r := router.NewRouter()
 	_ = r.Run(config.Config.System.HttpPort)

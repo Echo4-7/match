@@ -16,6 +16,7 @@ type Conf struct {
 	Redis  *Redis  `yaml:"redis"`
 	Email  *Email  `yaml:"email"`
 	Path   *Path   `yaml:"path"`
+	Minio  *Minio  `yaml:"minio"`
 }
 
 type System struct {
@@ -65,6 +66,13 @@ type EncryptSecret struct {
 type Path struct {
 	PhotoHost  string `yaml:"photoHost"`
 	AvatarPath string `yaml:"avatarPath"`
+}
+
+type Minio struct {
+	Endpoint   string `yaml:"endpoint"`
+	AccessKey  string `yaml:"accessKey"`
+	SecretKey  string `yaml:"secretKey"`
+	BucketName string `yaml:"bucketName"`
 }
 
 func Init() (err error) {

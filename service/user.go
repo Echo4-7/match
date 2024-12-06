@@ -257,7 +257,6 @@ func (service *UserService) LoginWithUserId(ctx context.Context) serializer.Resp
 // Update 更新用户信息 //
 func (service *UserInfoService) Update(ctx context.Context, userId string) serializer.Response {
 	var user *model.User
-	code := e.SUCCESS
 	// 找到用户
 	userDao := dao.NewUserDao(ctx)
 
@@ -329,14 +328,11 @@ func (service *UserInfoService) Update(ctx context.Context, userId string) seria
 		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
 		return serializer.HandleError(e.ServerBusy)
 	}
-	return serializer.Response{
-		Status: code,
-		Msg:    e.GetMsg(code),
-	}
+	return serializer.HandleError(e.SUCCESS)
 }
 
 // UploadAvatar 头像更新
-func (service *UserService) UploadAvatar(ctx context.Context, userId string, file multipart.File) serializer.Response {
+func (service *UserService) UploadAvatar(ctx context.Context, userId string, header *multipart.FileHeader) serializer.Response {
 	var user *model.User
 	userDao := dao.NewUserDao(ctx)
 
@@ -347,11 +343,39 @@ func (service *UserService) UploadAvatar(ctx context.Context, userId string, fil
 	}
 
 	// 保存图片到本地
-	path, err := UploadAvatarToLocalStatic(file, user.ID, userId)
+	//path, err := UploadAvatarToLocalStatic(file, user.ID, userId)
+	//if err != nil {
+	//	return serializer.HandleError(e.ErrorUploadFile)
+	//}
+	//user.Avatar = path
+	//err = userDao.UpdateUserByID(user, userId)
+	//if err != nil {
+	//	log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+	//	return serializer.HandleError(e.ServerBusy)
+	//}
+
+	// 保存到oss
+	var minioService MinioService
+	// 检查桶是否存在
+	err = minioService.EnsureBucket()
 	if err != nil {
-		return serializer.HandleError(e.ErrorUploadFile)
+		log.LogrusObj.Infoln("EnsureBucket failed: ", err)
 	}
-	user.Avatar = path
+	// 上传头像
+	objectName, err := minioService.Upload(header)
+	if err != nil {
+		log.LogrusObj.Infoln("minio Upload failed: ", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	fileUrl, err := minioService.Preview(objectName)
+	if err != nil {
+		log.LogrusObj.Infoln("minio Preview failed: ", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	// 返回文件访问 URL
+	//URL := fmt.Sprintf("http://%s/%s/%s", config.Config.Minio.Endpoint, config.Config.Minio.BucketName, fileUrl)
+	// 保存到数据库
+	user.Avatar = fileUrl
 	err = userDao.UpdateUserByID(user, userId)
 	if err != nil {
 		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
@@ -432,4 +456,20 @@ func (service *FindPwdService) FindPwd(ctx context.Context) serializer.Response 
 		return serializer.HandleError(e.ServerBusy)
 	}
 	return serializer.HandleError(e.SUCCESS)
+}
+
+// Info 获取用户信息
+func (service *UserService) Info(ctx context.Context, userId string) serializer.Response {
+	var user *model.User
+	userDao := dao.NewUserDao(ctx)
+	user, err := userDao.GetUserByID(userId)
+	if err != nil {
+		log.LogrusObj.Infoln("GetUserByID failed: ", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	return serializer.Response{
+		Status: e.SUCCESS,
+		Data:   serializer.BuildUser(user),
+		Msg:    e.GetMsg(e.SUCCESS),
+	}
 }

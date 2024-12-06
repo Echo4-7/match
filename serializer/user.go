@@ -1,7 +1,6 @@
 package serializer
 
 import (
-	"Fire/config"
 	"Fire/model"
 )
 
@@ -26,7 +25,7 @@ func BuildUser(user *model.User) *User {
 		Email:       user.Email,
 		NickName:    user.NickName,
 		Status:      user.Status,
-		Avatar:      config.Config.Path.PhotoHost + config.Config.System.HttpPort + config.Config.Path.AvatarPath + user.Avatar,
+		Avatar:      user.Avatar,
 		Gender:      user.Gender,
 		TelNum:      user.TelNum,
 		Location:    user.Location,
