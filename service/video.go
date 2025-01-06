@@ -25,7 +25,7 @@ func (v *VideoStreamService) SendVideoStream(videoPath string) {
 	}
 	defer videoFile.Close()
 
-	buffer := make([]byte, 1024*1024) // 1MB的缓冲区
+	buffer := make([]byte, 1024*1024*10) // 1MB的缓冲区
 	for {
 		n, err := videoFile.Read(buffer)
 		if err != nil {
