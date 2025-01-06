@@ -29,7 +29,6 @@ func NewRouter() *gin.Engine {
 		v1.POST("user/check_code", api.CheckCode)
 		// 忘记密码
 		v1.PUT("user/findPwd", api.FindPwd)
-
 		// 轮播图
 		v1.GET("carousels", api.ListCarousel)
 
@@ -42,6 +41,7 @@ func NewRouter() *gin.Engine {
 			auth.POST("avatar", api.UploadAvatar)
 			// 获取用户详细信息
 			auth.GET("user/info", api.UserInfo)
+
 		}
 	}
 

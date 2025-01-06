@@ -79,8 +79,14 @@ func SendCheckCode(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "邮箱不能为空！"})
 		return
 	}
-	res := userSendCheckCode.SendCheckCode(email, status)
-	c.JSON(http.StatusOK, res)
+	switch status {
+	case service.Register:
+		res := userSendCheckCode.SendCheckCode(email, service.Register)
+		c.JSON(http.StatusOK, res)
+	case service.Find:
+		res := userSendCheckCode.SendCheckCode(email, service.Find)
+		c.JSON(http.StatusOK, res)
+	}
 }
 
 // CheckCode 检验验证码

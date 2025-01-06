@@ -8,7 +8,14 @@
       <jdbc-url>jdbc:redis://112.124.46.88:6379/0</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="@112.124.46.88" uuid="2c29c860-87fe-4e32-8234-c0bed41816e9">
+    <data-source source="LOCAL" name="@112.124.46.88 [2]" uuid="3f9bc7a4-e750-4c05-bda2-7c2d266e8727">
+      <driver-ref>mongo</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.dbschema.MongoJdbcDriver</jdbc-driver>
+      <jdbc-url>mongodb://112.124.46.88:27017</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="@112.124.46.88" uuid="9c69f3ed-5c82-45c1-b165-58d3253b3f1a">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>

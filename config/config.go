@@ -2,6 +2,7 @@ package config
 
 import (
 	"Fire/dao"
+	"Fire/dao/Mongo"
 	"fmt"
 	"github.com/spf13/viper"
 	"os"
@@ -11,12 +12,13 @@ import (
 var Config *Conf
 
 type Conf struct {
-	System *System `yaml:"system"`
-	Mysql  *MySql  `yaml:"mysql"`
-	Redis  *Redis  `yaml:"redis"`
-	Email  *Email  `yaml:"email"`
-	Path   *Path   `yaml:"path"`
-	Minio  *Minio  `yaml:"minio"`
+	System  *System  `yaml:"system"`
+	Mysql   *MySql   `yaml:"mysql"`
+	Redis   *Redis   `yaml:"redis"`
+	Email   *Email   `yaml:"email"`
+	Path    *Path    `yaml:"path"`
+	Minio   *Minio   `yaml:"minio"`
+	MongoDB *MongoDB `yaml:"mongoDB"`
 }
 
 type System struct {
@@ -75,6 +77,13 @@ type Minio struct {
 	BucketName string `yaml:"bucketName"`
 }
 
+type MongoDB struct {
+	MongoDBName string `yaml:"mongoDBName"`
+	MongoDBAddr string `yaml:"mongoDBAddr"`
+	MongoDBPwd  string `yaml:"mongoDBPwd"`
+	MongoDBPort string `yaml:"mongoDBPort"`
+}
+
 func Init() (err error) {
 	workDir, _ := os.Getwd()
 	viper.SetConfigName("config")
@@ -95,5 +104,7 @@ func Init() (err error) {
 	pathRead := strings.Join([]string{Config.Mysql.UserName, ":", Config.Mysql.Password, "@tcp(", Config.Mysql.DbHost, ":", Config.Mysql.DbPort, ")/", Config.Mysql.DbName, "?charset=utf8mb4&parseTime=true&loc=Local"}, "")
 	pathWrite := strings.Join([]string{Config.Mysql.UserName, ":", Config.Mysql.Password, "@tcp(", Config.Mysql.DbHost, ":", Config.Mysql.DbPort, ")/", Config.Mysql.DbName, "?charset=utf8mb4&parseTime=true&loc=Local"}, "")
 	dao.DBEngine(pathRead, pathWrite)
+	//Mongo
+	Mongo.InitMongoDB(Config.MongoDB.MongoDBAddr, Config.MongoDB.MongoDBPort)
 	return
 }

@@ -299,7 +299,11 @@ func (service *UserInfoService) Update(ctx context.Context, userId string) seria
 		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
 		return serializer.HandleError(e.ServerBusy)
 	}
-	return serializer.HandleError(e.SUCCESS)
+	return serializer.Response{
+		Status: e.SUCCESS,
+		Data:   serializer.BuildUser(user),
+		Msg:    e.GetMsg(e.SUCCESS),
+	}
 }
 
 //func (service *UserService) UpdateTelNum(ctx context.Context, userId string, telNum string) serializer.Response {
@@ -405,7 +409,7 @@ func (service *UserService) UploadAvatar(ctx context.Context, userId string, hea
 		return serializer.HandleError(e.ServerBusy)
 	}
 	// 返回文件访问 URL
-	//URL := fmt.Sprintf("http://%s/%s/%s", config.Config.Minio.Endpoint, config.Config.Minio.BucketName, fileUrl)
+	//URL := fmt.Sprintf("http://%s/%s/%s", config.Config.Minio.Endpoint, config.Config.Minio.BucketName, objectName)
 	// 保存到数据库
 	user.Avatar = fileUrl
 	err = userDao.UpdateUserByID(user, userId)

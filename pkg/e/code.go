@@ -55,4 +55,11 @@ const (
 	//对象存储错误
 	ErrorOss        = 50001
 	ErrorUploadFile = 50002
+
+	WebsocketSuccessMessage = 60001
+	WebsocketSuccess        = 60002
+	WebsocketEnd            = 60003
+	WebsocketOnlineReply    = 60004
+	WebsocketOfflineReply   = 60005
+	WebsocketLimit          = 60006
 )

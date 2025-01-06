@@ -7,3 +7,6 @@
 {"level":"info","msg":"UpdateUserByID failed: Error 1406 (22001): Data too long for column 'avatar' at row 1","time":"2024-12-06 21:32:13"}
 {"level":"info","msg":"UpdateUserByID failed: Error 1406 (22001): Data too long for column 'avatar' at row 1","time":"2024-12-06 21:52:16"}
 {"level":"info","msg":"UpdateUserByID failed: Error 1406 (22001): Data too long for column 'avatar' at row 1","time":"2024-12-06 21:54:41"}
+{"level":"info","msg":"EnsureBucket failed:  error ensuring bucket existence: Put \"https://118.31.244.33:9000/avatar/\": http: server gave HTTP response to HTTPS client","time":"2024-12-08 01:39:23"}
+{"level":"info","msg":"minio Upload failed:  Get \"https://118.31.244.33:9000/avatar/?location=\": http: server gave HTTP response to HTTPS client","time":"2024-12-08 01:39:23"}
+{"level":"info","msg":"\u003c---监听管道通信---\u003e","time":"2024-12-21 05:04:05"}

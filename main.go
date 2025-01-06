@@ -37,10 +37,14 @@ func main() {
 	//	return
 	//}
 
-	util.InitMinio(config.Config.Minio.Endpoint, config.Config.Minio.AccessKey, config.Config.Minio.SecretKey)
+	if err := util.InitMinio(config.Config.Minio.Endpoint, config.Config.Minio.AccessKey, config.Config.Minio.SecretKey); err != nil {
+		fmt.Printf("init minio failed, err: %v\n", err)
+		return
+	}
 
 	r := router.NewRouter()
 	_ = r.Run(config.Config.System.HttpPort)
+	router.StartVideoStreamServer()
 
 	// 6. 启动服务（优雅关机）
 	srv := &http.Server{

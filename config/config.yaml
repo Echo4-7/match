@@ -20,7 +20,7 @@ mysql:
     #dbPort: "3306"
     #dbName: "fire_tmp"
     userName: "root"
-    password: "abc123"
+    password: "shimily123"
     charset: "utf8mb4"
 
 redis:
@@ -50,3 +50,9 @@ minio:
   accessKey: "jhqminio"
   secretKey: "shimily123"
   bucketName: "avatar"
+
+mongoDB:
+  mongoDBName: "fire"
+  mongoDBAddr: "112.124.46.88"
+  mongoDBPwd: abc123
+  mongoDBPort: 27017
