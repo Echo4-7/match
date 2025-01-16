@@ -19,6 +19,7 @@ import (
 const (
 	Register = "注册"
 	Find     = "找回密码"
+	Modify   = "修改个人信息"
 )
 
 type UserService struct {
@@ -36,6 +37,12 @@ type UserInfoService struct {
 	Gender      string `json:"gender" form:"gender"`
 	Location    string `json:"location" form:"location"`
 	Description string `json:"description" form:"description"`
+}
+
+type UserModify struct {
+	Email  string `json:"email" form:"email"`
+	TelNum string `json:"tel_num" form:"tel_num"`
+	NewPwd string `json:"new_pwd" form:"new_pwd"`
 }
 
 // Register 注册
@@ -252,7 +259,7 @@ func (service *UserService) LoginWithUserId(ctx context.Context) serializer.Resp
 	}
 }
 
-// Update 更新用户信息 //
+// Update 更新用户信息
 func (service *UserInfoService) Update(ctx context.Context, userId string) serializer.Response {
 	var user *model.User
 	// 找到用户
@@ -306,66 +313,101 @@ func (service *UserInfoService) Update(ctx context.Context, userId string) seria
 	}
 }
 
-//func (service *UserService) UpdateTelNum(ctx context.Context, userId string, telNum string) serializer.Response {
-//	var user *model.User
-//	userDao := dao.NewUserDao(ctx)
-//
-//	user, err := userDao.GetUserByID(userId)
-//	if err != nil {
-//		log.LogrusObj.Infoln("GetUserByID failed:", err)
-//		return serializer.HandleError(e.ServerBusy)
-//	}
-//	if user == nil {
-//		return serializer.HandleError(e.ErrorNotExistUser)
-//	}
-//	exist, err := userDao.TelNumIsExist(telNum)
-//	if err != nil {
-//		log.LogrusObj.Infoln("TelNumIsExist failed:", err)
-//		return serializer.HandleError(e.ServerBusy)
-//	}
-//	if exist {
-//		return serializer.HandleError(e.ErrorExistTelNum)
-//	}
-//	user.TelNum = telNum
-//
-//	err = userDao.UpdateUserByID(user, userId)
-//	if err != nil {
-//		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
-//		return serializer.HandleError(e.ServerBusy)
-//	}
-//	return serializer.HandleError(e.SUCCESS)
-//
-//}
-//
-//func (service *UserService) UpdateEmail(ctx context.Context, userId string, email string) serializer.Response {
-//	var user *model.User
-//	userDao := dao.NewUserDao(ctx)
-//
-//	user, err := userDao.GetUserByID(userId)
-//	if err != nil {
-//		log.LogrusObj.Infoln("GetUserByID failed:", err)
-//		return serializer.HandleError(e.ServerBusy)
-//	}
-//	if user == nil {
-//		return serializer.HandleError(e.ErrorNotExistUser)
-//	}
-//	exist, err := userDao.EmailIsExist(email)
-//	if err != nil {
-//		log.LogrusObj.Infoln("EmailIsExist failed:", err)
-//		return serializer.HandleError(e.ServerBusy)
-//	}
-//	if exist {
-//		return serializer.HandleError(e.ErrorExistTelNum)
-//	}
-//	user.Email = email
-//
-//	err = userDao.UpdateUserByID(user, userId)
-//	if err != nil {
-//		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
-//		return serializer.HandleError(e.ServerBusy)
-//	}
-//	return serializer.HandleError(e.SUCCESS)
-//}
+// UpdateTelNum 更改手机号
+func (service *UserModify) UpdateTelNum(ctx context.Context, userId string) serializer.Response {
+	var user *model.User
+	userDao := dao.NewUserDao(ctx)
+
+	user, err := userDao.GetUserByID(userId)
+	if err != nil {
+		log.LogrusObj.Infoln("GetUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if user == nil {
+		return serializer.HandleError(e.ErrorNotExistUser)
+	}
+	exist, err := userDao.TelNumIsExist(service.TelNum)
+	if err != nil {
+		log.LogrusObj.Infoln("TelNumIsExist failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if exist {
+		return serializer.HandleError(e.ErrorExistTelNum)
+	}
+	user.TelNum = service.TelNum
+
+	err = userDao.UpdateUserByID(user, userId)
+	if err != nil {
+		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	return serializer.HandleError(e.SUCCESS)
+}
+
+// UpdateEmail 更改邮箱
+func (service *UserModify) UpdateEmail(ctx context.Context, userId string) serializer.Response {
+	var user *model.User
+	userDao := dao.NewUserDao(ctx)
+
+	user, err := userDao.GetUserByID(userId)
+	if err != nil {
+		log.LogrusObj.Infoln("GetUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if user == nil {
+		return serializer.HandleError(e.ErrorNotExistUser)
+	}
+	exist, err := userDao.EmailIsExist(service.Email)
+	if err != nil {
+		log.LogrusObj.Infoln("EmailIsExist failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	if exist {
+		return serializer.HandleError(e.ErrorExistEmail)
+	}
+	user.Email = service.Email
+
+	err = userDao.UpdateUserByID(user, userId)
+	if err != nil {
+		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	return serializer.HandleError(e.SUCCESS)
+}
+
+func (service *UserModify) UpdatePwd(ctx context.Context, userId string) serializer.Response {
+	var user *model.User
+	userDao := dao.NewUserDao(ctx)
+
+	user, err := userDao.GetUserByID(userId)
+	if err != nil {
+		log.LogrusObj.Infoln("GetUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	// rsa解析密码
+	decrypt, err := util.Decrypt(service.NewPwd, util.GetPrivateKey())
+	if err != nil {
+		log.LogrusObj.Infoln("Decrypt failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+
+	// 新密码不能和原密码一致
+	if user.CheckPassword(decrypt) == true {
+		return serializer.HandleError(e.ErrorComparePassword)
+	}
+
+	// 更新密码
+	if err = user.SetPassword(decrypt); err != nil {
+		log.LogrusObj.Infoln("SetPassword failed:", err)
+		return serializer.HandleError(e.ErrorFailEncryption)
+	}
+	err = userDao.UpdateUserByID(user, user.UserId)
+	if err != nil {
+		log.LogrusObj.Infoln("UpdateUserByID failed:", err)
+		return serializer.HandleError(e.ServerBusy)
+	}
+	return serializer.HandleError(e.SUCCESS)
+}
 
 // UploadAvatar 头像更新
 func (service *UserService) UploadAvatar(ctx context.Context, userId string, header *multipart.FileHeader) serializer.Response {
@@ -432,6 +474,8 @@ func (service *UserService) SendCheckCode(email string, status string) serialize
 		subject = Register
 	} else if status == Find {
 		subject = Find
+	} else if status == Modify {
+		subject = Modify
 	}
 
 	checkCode := fmt.Sprintf("%06d", rand.Intn(1000000)) // 生成 6 位数验证码

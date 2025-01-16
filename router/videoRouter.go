@@ -7,7 +7,7 @@ import (
 )
 
 func StartVideoStreamServer() {
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", "192.168.31.232:5000")
 	if err != nil {
 		log.Fatal(err)
 	}

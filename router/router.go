@@ -41,7 +41,12 @@ func NewRouter() *gin.Engine {
 			auth.POST("avatar", api.UploadAvatar)
 			// 获取用户详细信息
 			auth.GET("user/info", api.UserInfo)
-
+			// 更改邮箱
+			auth.PUT("user/updateEmail", api.UserUpdateEmail)
+			// 更改手机号
+			auth.PUT("user/updateTelNum", api.UserUpdateTelNum)
+			// 更改密码
+			auth.PUT("user/updatePwd", api.UserUpdatePwd)
 		}
 	}
 

@@ -86,6 +86,9 @@ func SendCheckCode(c *gin.Context) {
 	case service.Find:
 		res := userSendCheckCode.SendCheckCode(email, service.Find)
 		c.JSON(http.StatusOK, res)
+	case service.Modify:
+		res := userSendCheckCode.SendCheckCode(email, service.Modify)
+		c.JSON(http.StatusOK, res)
 	}
 }
 
@@ -113,6 +116,42 @@ func FindPwd(c *gin.Context) {
 	}
 }
 
+// UserUpdateEmail 更改邮箱
+func UserUpdateEmail(c *gin.Context) {
+	var userUpdate service.UserModify
+	claims, _ := util.ParseToken(c.GetHeader("Authorization"))
+	if err := c.ShouldBind(&userUpdate); err == nil {
+		res := userUpdate.UpdateEmail(c.Request.Context(), claims.UserID)
+		c.JSON(http.StatusOK, res)
+	} else {
+		c.JSON(http.StatusBadRequest, err)
+	}
+}
+
+// UserUpdateTelNum 更改手机号
+func UserUpdateTelNum(c *gin.Context) {
+	var userUpdate service.UserModify
+	claims, _ := util.ParseToken(c.GetHeader("Authorization"))
+	if err := c.ShouldBind(&userUpdate); err == nil {
+		res := userUpdate.UpdateTelNum(c.Request.Context(), claims.UserID)
+		c.JSON(http.StatusOK, res)
+	} else {
+		c.JSON(http.StatusBadRequest, err)
+	}
+}
+
+// UserUpdatePwd 更改密码
+func UserUpdatePwd(c *gin.Context) {
+	var userUpdatePwd service.UserModify
+	claim, _ := util.ParseToken(c.GetHeader("Authorization"))
+	if err := c.ShouldBind(&userUpdatePwd); err == nil {
+		res := userUpdatePwd.UpdatePwd(c.Request.Context(), claim.UserID)
+		c.JSON(http.StatusOK, res)
+	} else {
+		c.JSON(http.StatusBadRequest, err)
+	}
+}
+
 // UserInfo 获取用户信息
 func UserInfo(c *gin.Context) {
 	var userService service.UserService
@@ -124,5 +163,4 @@ func UserInfo(c *gin.Context) {
 		res := userService.Info(c.Request.Context(), claim.UserID)
 		c.JSON(http.StatusOK, res)
 	}
-
 }

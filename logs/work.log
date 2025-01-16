@@ -10,3 +10,38 @@
 {"level":"info","msg":"EnsureBucket failed:  error ensuring bucket existence: Put \"https://118.31.244.33:9000/avatar/\": http: server gave HTTP response to HTTPS client","time":"2024-12-08 01:39:23"}
 {"level":"info","msg":"minio Upload failed:  Get \"https://118.31.244.33:9000/avatar/?location=\": http: server gave HTTP response to HTTPS client","time":"2024-12-08 01:39:23"}
 {"level":"info","msg":"\u003c---监听管道通信---\u003e","time":"2024-12-21 05:04:05"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 4","time":"2025-01-14 22:54:27"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 4","time":"2025-01-14 22:54:44"}
+{"level":"info","msg":"RedisClient.Set failed: EOF","time":"2025-01-14 23:11:47"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:05:10"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:05:14"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:05:16"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:05:43"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:05:50"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:06:36"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:09:44"}
+{"level":"info","msg":"RedisClient.Set failed: READONLY You can't write against a read only replica.","time":"2025-01-15 20:10:08"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 112","time":"2025-01-15 20:34:31"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 112","time":"2025-01-15 20:37:00"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 112","time":"2025-01-15 20:39:06"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 171","time":"2025-01-15 20:39:22"}
+{"level":"info","msg":"Decrypt failed: base64 decode failed: illegal base64 data at input byte 112","time":"2025-01-15 20:40:48"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 20:48:13"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 20:49:42"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 20:59:40"}
+{"level":"info","msg":"","time":"2025-01-15 21:00:55"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:00:55"}
+{"level":"info","msg":"","time":"2025-01-15 21:01:48"}
+{"level":"info","msg":"","time":"2025-01-15 21:01:48"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:01:48"}
+{"level":"info","msg":"","time":"2025-01-15 21:03:36"}
+{"level":"info","msg":"","time":"2025-01-15 21:03:36"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:03:36"}
+{"level":"info","msg":"123","time":"2025-01-15 21:04:59"}
+{"level":"info","msg":"","time":"2025-01-15 21:04:59"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:04:59"}
+{"level":"info","msg":"123IqzxGvRDSoQef1KICUVJOVQBC0byko5HWOVyIvyApOQnQvZIqnLZgvYVaJgpQGdjRFCWP93kFtIeOQDvi9Uedajb6FbI5QuuQJhGdyKwQcC4r4TO+H6f5wN8udEvuxH1miSDYgL30dSLyAuznAz6osHvx0QDmZDtlrWJewC2Ho4=","time":"2025-01-15 21:08:24"}
+{"level":"info","msg":"IqzxGvRDSoQef1KICUVJOVQBC0byko5HWOVyIvyApOQnQvZIqnLZgvYVaJgpQGdjRFCWP93kFtIeOQDvi9Uedajb6FbI5QuuQJhGdyKwQcC4r4TO+H6f5wN8udEvuxH1miSDYgL30dSLyAuznAz6osHvx0QDmZDtlrWJewC2Ho4=","time":"2025-01-15 21:08:24"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:22:09"}
+{"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:22:14"}
+{"level":"info","msg":"RedisClient.Set failed: EOF","time":"2025-01-15 21:31:59"}

@@ -42,9 +42,11 @@ func main() {
 		return
 	}
 
-	r := router.NewRouter()
+	r := router.NewRouter() // gin路由
+
 	_ = r.Run(config.Config.System.HttpPort)
-	router.StartVideoStreamServer()
+
+	router.StartVideoStreamServer() //socket路由
 
 	// 6. 启动服务（优雅关机）
 	srv := &http.Server{

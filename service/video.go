@@ -1,10 +1,12 @@
 package service
 
 import (
+	"bufio"
+	"fmt"
 	"io"
-	"log"
+	l "log"
 	"net"
-	"os"
+	"os/exec"
 )
 
 type VideoStreamService struct {
@@ -16,28 +18,48 @@ func NewVideoStreamService(conn net.Conn) *VideoStreamService {
 }
 
 func (v *VideoStreamService) SendVideoStream(videoPath string) {
-	defer v.conn.Close()
+	// 每秒拆分的帧数
+	fps := 1
 
-	videoFile, err := os.Open(videoPath)
+	// 构建 FFmpeg 命令
+	cmd := exec.Command("ffmpeg", "-i", videoPath, "-vf", fmt.Sprintf("fps=%d", fps), "-f", "image2pipe", "-vcodec", "mjpeg", "-")
+
+	// 创建管道
+	pipeReader, pipeWriter := io.Pipe()
+	cmd.Stdout = pipeWriter
+
+	// 启动 FFmpeg 命令
+	err := cmd.Start()
 	if err != nil {
-		log.Println("无法打开视频文件:", err)
-		return
+		l.Fatalf("Failed to start FFmpeg command: %v", err)
 	}
-	defer videoFile.Close()
 
-	buffer := make([]byte, 1024*1024*10) // 1MB的缓冲区
+	// 从管道读取数据并发送到服务器
+	reader := bufio.NewReader(pipeReader)
 	for {
-		n, err := videoFile.Read(buffer)
+		// 读取一帧数据
+		frame, err := reader.ReadBytes('\n')
+
 		if err != nil {
-			if err != io.EOF {
-				log.Println("读取视频文件时出错:", err)
+			if err == io.EOF {
+				break // FFmpeg 完成输出
 			}
-			break
+			l.Fatalf("Failed to read frame: %v", err)
 		}
-		_, err = v.conn.Write(buffer[:n])
+
+		// 发送数据
+		_, err = v.conn.Write(frame)
+		fmt.Println(frame)
 		if err != nil {
-			log.Println("发送视频数据时出错:", err)
-			break
+			l.Fatalf("Failed to send frame: %v", err)
 		}
+	}
+	// 关闭管道写端
+	pipeWriter.Close()
+
+	// 等待 FFmpeg 命令完成
+	err = cmd.Wait()
+	if err != nil {
+		l.Fatalf("FFmpeg command failed: %v", err)
 	}
 }
