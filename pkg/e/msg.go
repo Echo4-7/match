@@ -36,7 +36,7 @@ var MsgFlags = map[int]string{
 	ErrorAuthCheckTokenFail:        "Token鉴权失败",
 	ErrorAuthCheckTokenTimeout:     "Token已超时",
 	ErrorAuthToken:                 "Token生成失败",
-	ErrorAuth:                      "Token错误",
+	ErrorAuth:                      "Token错误,未登录",
 	ErrorAuthInsufficientAuthority: "权限不足",
 	ErrorReadFile:                  "读文件失败",
 	ErrorSendEmail:                 "发送邮件失败",

@@ -45,3 +45,4 @@
 {"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:22:09"}
 {"level":"info","msg":"Decrypt failed: decryption failed: crypto/rsa: decryption error","time":"2025-01-15 21:22:14"}
 {"level":"info","msg":"RedisClient.Set failed: EOF","time":"2025-01-15 21:31:59"}
+{"level":"info","msg":"UpdateUserByID failed: Error 1406 (22001): Data too long for column 'avatar' at row 1","time":"2025-01-21 17:59:08"}
